@@ -127,3 +127,22 @@ def test_password(client, monkeypatch):
 
 async def _async(v):
     return v
+
+
+def test_gemini_retired_model_fallback(monkeypatch):
+    import httpx
+    seen = []
+
+    def handler(req):
+        seen.append(req.url.path)
+        if req.url.path.endswith("gemini-old:generateContent"):
+            return httpx.Response(404, json={"error": {"message": "no longer available. Please update your code to use models/gemini-9-flash for"}})
+        return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": '{"cards": []}'}]}}]})
+
+    real = httpx.AsyncClient
+    monkeypatch.setattr(vision.httpx, "AsyncClient", lambda **kw: real(transport=httpx.MockTransport(handler)))
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    monkeypatch.setitem(vision._gemini_model, "name", "gemini-old")
+    assert asyncio.run(vision._gemini(b"x", "image/jpeg")) == []
+    assert seen[-1].endswith("gemini-9-flash:generateContent")
+    assert vision._gemini_model["name"] == "gemini-9-flash"

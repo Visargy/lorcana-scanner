@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 from typing import List
 
 import httpx
@@ -143,8 +144,29 @@ def _gemini_schema(s):
     return s
 
 
+GEMINI_API = "https://generativelanguage.googleapis.com/v1beta"
+_gemini_model = {"name": os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")}
+
+
+def _version_key(name: str):
+    return [int(n) for n in re.findall(r"\d+", name)]
+
+
+async def _pick_gemini_model(http: httpx.AsyncClient, error_text: str) -> str:
+    """The configured model was retired: take the one Google suggests, else the newest Flash model."""
+    m = re.search(r"use models/([\w.\-]+)", error_text)
+    if m:
+        return m.group(1)
+    r = await http.get(f"{GEMINI_API}/models", params={"key": os.environ["GEMINI_API_KEY"], "pageSize": 1000})
+    names = [x["name"].split("/", 1)[1] for x in r.json().get("models", [])
+             if "generateContent" in x.get("supportedGenerationMethods", [])]
+    flash = [n for n in names if re.fullmatch(r"gemini-[\d.]+-flash", n)]
+    if not flash:
+        raise VisionError(f"Gemini: model {_gemini_model['name']} není dostupný a nenašel jsem náhradu.")
+    return max(flash, key=_version_key)
+
+
 async def _gemini(image: bytes, media_type: str) -> List[dict]:
-    model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
     body = {
         "contents": [{"parts": [
             {"inline_data": {"mime_type": media_type, "data": base64.b64encode(image).decode()}},
@@ -154,8 +176,13 @@ async def _gemini(image: bytes, media_type: str) -> List[dict]:
                              "temperature": 0},
     }
     async with httpx.AsyncClient(timeout=120) as http:
-        r = await http.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                            params={"key": os.environ["GEMINI_API_KEY"]}, json=body)
+        for attempt in range(2):
+            r = await http.post(f"{GEMINI_API}/models/{_gemini_model['name']}:generateContent",
+                                params={"key": os.environ["GEMINI_API_KEY"]}, json=body)
+            if r.status_code == 404 and attempt == 0:
+                _gemini_model["name"] = await _pick_gemini_model(http, r.text)
+                continue
+            break
     if r.status_code != 200:
         raise VisionError(f"Gemini API chyba {r.status_code}: {r.text[:200]}")
     try:

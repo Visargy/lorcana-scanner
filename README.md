@@ -76,7 +76,7 @@ Na domácím PC nebo Raspberry Pi máš rezidenční IP a často pak Scrape.do v
 
 ## Náklady (orientačně)
 
-- **Rozpoznávání:** Gemini 2.5 Flash má free tier, který na běžné použití stačí. Claude Opus 5.5 (výchozí model,
+- **Rozpoznávání:** Gemini Flash má free tier, který na běžné použití stačí. Claude Opus 5.5 (výchozí model,
   když je nastavený `ANTHROPIC_API_KEY`) vyjde zhruba na 1–3 haléře za fotku. Levnější varianta je
   `CLAUDE_MODEL=claude-haiku-5-5`.
 - **Cardmarket přes Scrape.do:** jedna stránka stojí zhruba 10 kreditů. Nová karta potřebuje 2 stránky (hledání + nabídky),
@@ -90,7 +90,7 @@ Na domácím PC nebo Raspberry Pi máš rezidenční IP a často pak Scrape.do v
 |---|---|---|
 | `VISION_PROVIDER` | auto | `claude` nebo `gemini`, když máš oba klíče |
 | `CLAUDE_MODEL` | `claude-opus-5-5` | model pro Claude |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | model pro Gemini |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | model pro Gemini (když ho Google vypne, aplikace si sama vybere nejnovější Flash) |
 | `FETCH_MODE` | `auto` | `direct` (jen zdarma), `scrapedo` (jen Scrape.do), `auto` (nejdřív zdarma, pak Scrape.do) |
 | `PRICE_CACHE_HOURS` | `6` | jak dlouho platí stažená cena |
 
