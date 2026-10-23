@@ -337,6 +337,12 @@ document.addEventListener("drop", (e) => {
 document.addEventListener("error", (e) => { if (e.target.tagName === "IMG") e.target.classList.add("broken"); }, true);
 document.addEventListener("load", (e) => { if (e.target.tagName === "IMG") e.target.classList.remove("broken"); }, true);
 
+// iPhone: Safari has no install button, so explain "Share -> Add to Home Screen" once.
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const standalone = window.navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+if (isIos && !standalone && !LS.get("iosHintClosed", false)) $("#iosHint").hidden = false;
+$("#iosHintClose").onclick = () => { $("#iosHint").hidden = true; LS.set("iosHintClosed", true); };
+
 // Items interrupted mid-lookup (page closed) get finished now.
 items.forEach((x) => { if (x.status === "loading") lookup(x); });
 render();
