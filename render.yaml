@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: lorcana-scanner
+    runtime: docker
+    plan: free
+    envVars:
+      - key: APP_PASSWORD
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SCRAPEDO_TOKEN
+        sync: false

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lorcana Scanner</title>
+<meta name="theme-color" content="#14112b">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="/icon.svg" alt=""><span>Lorcana Scanner</span></div>
+  <button class="icon-btn" id="settingsBtn" aria-label="Nastavení">⚙️</button>
+</header>
+
+<main>
+  <section class="capture">
+    <label class="big-btn primary">
+      <input type="file" accept="image/*" capture="environment" id="camInput" hidden>
+      <span class="emoji">📷</span><span>Vyfotit karty</span>
+    </label>
+    <label class="big-btn">
+      <input type="file" accept="image/*" multiple id="fileInput" hidden>
+      <span class="emoji">🖼️</span><span>Nahrát fotky</span>
+    </label>
+    <p class="hint">Tip: fotka shora, rovně, bez odlesků. Klidně celá stránka z binderu nebo víc karet na stole.</p>
+    <form class="manual" id="manualForm" autocomplete="off">
+      <input type="search" id="manualInput" placeholder="…nebo napiš název karty (např. Elsa Spirit of Winter)">
+      <button type="submit">Hledat</button>
+    </form>
+    <div id="manualResults" class="manual-results"></div>
+  </section>
+
+  <div id="jobs"></div>
+
+  <section class="summary" id="summary" hidden>
+    <div class="totals">
+      <div><small>Karet</small><b id="tCount">0</b></div>
+      <div><small>Σ CM low EN</small><b id="tLow">–</b></div>
+      <div><small>Σ Medián 5</small><b id="tMed">–</b></div>
+    </div>
+    <div class="actions">
+      <button id="csvBtn">⬇️ CSV</button>
+      <button id="copyBtn">📋 Kopírovat</button>
+      <button id="refreshAllBtn">🔄 Obnovit ceny</button>
+      <button id="clearBtn" class="danger">🗑️ Vymazat</button>
+    </div>
+  </section>
+
+  <section id="list" class="list"></section>
+  <p class="empty" id="empty">Zatím žádné karty. Vyfoť je nebo nahraj fotku 👆</p>
+</main>
+
+<dialog id="settings">
+  <form method="dialog">
+    <h2>Nastavení</h2>
+    <label>Heslo aplikace
+      <input type="password" id="pwInput" placeholder="(pokud je nastavené na serveru)">
+    </label>
+    <label>Minimální stav karty pro ceny
+      <select id="condSelect">
+        <option value="">Jakýkoliv</option>
+        <option value="1">Mint</option>
+        <option value="2">Near Mint a lepší</option>
+        <option value="3">Excellent a lepší</option>
+        <option value="4">Good a lepší</option>
+        <option value="5">Light Played a lepší</option>
+      </select>
+    </label>
+    <div class="status" id="statusBox">Načítám stav serveru…</div>
+    <menu><button value="ok" class="primary">Uložit</button></menu>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+
+<template id="itemTpl">
+  <article class="item">
+    <div class="thumb"><img alt="" loading="lazy"></div>
+    <div class="body">
+      <div class="title-row">
+        <div class="title"><b class="name"></b><span class="version"></span></div>
+        <button class="icon-btn remove" aria-label="Odebrat">✕</button>
+      </div>
+      <div class="meta"></div>
+      <div class="controls">
+        <button class="foil-toggle"></button>
+        <div class="qty"><button class="minus" aria-label="Méně">−</button><span class="q">1</span><button class="plus" aria-label="Více">+</button></div>
+        <select class="variant" aria-label="Verze karty"></select>
+      </div>
+      <div class="prices">
+        <div class="p low"><small>CM low EN</small><b>–</b></div>
+        <div class="p med"><small>Medián 5</small><b>–</b></div>
+        <div class="p trend"><small>Trend</small><b>–</b></div>
+      </div>
+      <div class="state"></div>
+      <details class="offers"><summary>5 nejlevnějších EN nabídek</summary><ol></ol></details>
+      <div class="links"><a class="cm-link" target="_blank" rel="noopener">Otevřít na Cardmarketu ↗</a><button class="link-btn reload">🔄 obnovit</button></div>
+    </div>
+  </article>
+</template>
+
+<script src="/app.js"></script>
+</body>
+</html>
