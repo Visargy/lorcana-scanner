@@ -39,17 +39,19 @@ tvou residential proxy. Když ji Cloudflare zablokuje, použije **Scrape.do**, k
 - **⚙️ Nastavení:** heslo aplikace, minimální stav karty (např. jen NM) a stav serveru.
 - Na mobilu dej v prohlížeči **„Přidat na plochu“**. Aplikace se pak chová jako normální appka.
 
-## Nasazení zdarma na Hugging Face Spaces (asi 10 minut)
+## Nasazení zdarma na Render.com (asi 10 minut)
 
-1. Založ si účet na <https://huggingface.co> (zdarma).
-2. Klikni na **New → Space**. Zadej jméno (např. `lorcana-scanner`), jako **SDK zvol Docker → Blank** a hardware nech
-   **CPU basic (free)**. Viditelnost dej Public (aplikaci chrání heslo, viz krok 4), nebo Private,
-   pokud budeš v mobilu přihlášený k HF.
-3. Ve Space otevři **Files → Add file → Upload files** a nahraj **obsah** této složky (`app/`, `static/`, `Dockerfile`,
-   `requirements.txt`, `README.md`). Složky `tests/` a `.venv/` nahrávat nemusíš.
-4. Ve Space otevři **Settings → Variables and secrets → New secret** a přidej:
+Hugging Face od roku 2026 chce za Docker Spaces placený plán, proto Render.
 
-   | Secret | Co to je | Povinné |
+1. **GitHub:** na <https://github.com/new> založ repozitář `lorcana-scanner` (může být Private). Pak klikni na
+   **uploading an existing file** a přetáhni **obsah** této složky (`app/`, `static/`, `Dockerfile`,
+   `requirements.txt`, `render.yaml`, `README.md`). Nakonec klikni na **Commit changes**.
+2. **Render:** na <https://render.com> se přihlas přes GitHub (karta není potřeba). Klikni na
+   **New → Web Service** a vyber repozitář `lorcana-scanner`. Render pozná `Dockerfile` sám.
+   Region dej **Frankfurt** a jako Instance Type zvol **Free**.
+3. V části **Environment Variables** přidej:
+
+   | Proměnná | Co to je | Povinné |
    |---|---|---|
    | `APP_PASSWORD` | heslo do aplikace, ať ti cizí lidi nepálí kredity | doporučeno |
    | `GEMINI_API_KEY` | rozpoznávání karet **zdarma**: <https://aistudio.google.com/apikey> | jeden z těchto dvou |
@@ -57,14 +59,13 @@ tvou residential proxy. Když ji Cloudflare zablokuje, použije **Scrape.do**, k
    | `SCRAPEDO_TOKEN` | obcházení Cloudflare: <https://scrape.do> (free tier 1000 kreditů/měsíc) | prakticky ano |
    | `PROXY_URL` | volitelně vlastní residential proxy, `http://user:pass@host:port` | ne |
 
-5. Počkej, až build doběhne (stav **Running**). Aplikace poběží na `https://<tvuj-ucet>-lorcana-scanner.hf.space`.
+4. Klikni na **Deploy Web Service**. Po pár minutách bude aplikace běžet na `https://lorcana-scanner-xxxx.onrender.com`.
    Otevři ji v mobilu, zadej heslo v ⚙️ a přidej si ji na plochu.
 
-Space na free tieru po 48 hodinách bez návštěvy usne. Při dalším otevření se do minuty sám probudí.
-
-### Alternativa: Render.com
-New → Blueprint → nahraj repozitář s touto složkou (je v ní `render.yaml`) a vyplň stejné proměnné.
-Free instance na Renderu usíná už po 15 minutách nečinnosti.
+**Usínání:** free instance na Renderu po 15 minutách bez návštěvy usne a první otevření pak trvá asi minutu.
+Ať je pořád vzhůru, založ si zdarma na <https://cron-job.org> úlohu, která každých 10 minut otevře
+`https://<tvoje-adresa>.onrender.com/api/status`. Free tier na Renderu má 750 hodin měsíčně, takže na nepřetržitý
+provoz jedné aplikace stačí.
 
 ### Lokálně / na vlastním serveru
 ```bash
